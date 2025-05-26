@@ -1,11 +1,328 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { TrendingUp, TrendingDown, AlertCircle, Plus, Search, Filter, DollarSign, Users, Package, Target } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
+  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Mock data for demonstration
+  const priceData = [
+    { date: '1/1', supplier1: 45, supplier2: 48, supplier3: 42 },
+    { date: '1/2', supplier1: 47, supplier2: 46, supplier3: 44 },
+    { date: '1/3', supplier1: 44, supplier2: 49, supplier3: 43 },
+    { date: '1/4', supplier1: 46, supplier2: 47, supplier3: 41 },
+    { date: '1/5', supplier1: 43, supplier2: 45, supplier3: 40 },
+  ];
+
+  const products = [
+    { 
+      id: 1, 
+      name: 'Rice (1kg)', 
+      currentPrice: 43, 
+      lastPrice: 46, 
+      bestSupplier: 'Supplier C',
+      trend: 'down',
+      savings: 3
+    },
+    { 
+      id: 2, 
+      name: 'Cooking Oil (1L)', 
+      currentPrice: 125, 
+      lastPrice: 120, 
+      bestSupplier: 'Supplier A',
+      trend: 'up',
+      savings: -5
+    },
+    { 
+      id: 3, 
+      name: 'Sugar (1kg)', 
+      currentPrice: 55, 
+      lastPrice: 58, 
+      bestSupplier: 'Supplier B',
+      trend: 'down',
+      savings: 3
+    },
+  ];
+
+  const suppliers = [
+    { name: 'Supplier A', products: 45, avgPrice: 87, reliability: 95 },
+    { name: 'Supplier B', products: 38, avgPrice: 82, reliability: 92 },
+    { name: 'Supplier C', products: 52, avgPrice: 79, reliability: 98 },
+  ];
+
+  const recommendations = [
+    {
+      type: 'buy',
+      product: 'Rice (1kg)',
+      reason: 'Price dropped 6.5% - best time to buy',
+      savings: '₹3 per unit',
+      urgency: 'high'
+    },
+    {
+      type: 'wait',
+      product: 'Cooking Oil (1L)',
+      reason: 'Price trending upward - wait for correction',
+      savings: 'Potential ₹8 savings',
+      urgency: 'medium'
+    },
+  ];
+
+  const handleAddProduct = () => {
+    toast({
+      title: "Add Product",
+      description: "Product tracking feature coming soon!",
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-slate-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <div className="bg-emerald-600 p-2 rounded-lg">
+                <DollarSign className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">PriceTracker Pro</h1>
+                <p className="text-sm text-gray-500">Smart Retail Price Management</p>
+              </div>
+            </div>
+            <Button onClick={handleAddProduct} className="bg-emerald-600 hover:bg-emerald-700">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Product
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-emerald-100">Total Savings</p>
+                  <p className="text-2xl font-bold">₹2,450</p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-emerald-200" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600">Products Tracked</p>
+                  <p className="text-2xl font-bold text-gray-900">127</p>
+                </div>
+                <Package className="h-8 w-8 text-gray-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600">Active Suppliers</p>
+                  <p className="text-2xl font-bold text-gray-900">15</p>
+                </div>
+                <Users className="h-8 w-8 text-gray-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600">Avg. Savings</p>
+                  <p className="text-2xl font-bold text-gray-900">12.5%</p>
+                </div>
+                <Target className="h-8 w-8 text-gray-400" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
+            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Price Trends Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Price Trends</CardTitle>
+                  <CardDescription>Last 5 days price comparison</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={priceData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="supplier1" stroke="#10b981" strokeWidth={2} name="Supplier A" />
+                      <Line type="monotone" dataKey="supplier2" stroke="#3b82f6" strokeWidth={2} name="Supplier B" />
+                      <Line type="monotone" dataKey="supplier3" stroke="#8b5cf6" strokeWidth={2} name="Supplier C" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                  <CardDescription>Smart recommendations for today</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {recommendations.map((rec, index) => (
+                    <div key={index} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                      <div className={`p-2 rounded-full ${rec.urgency === 'high' ? 'bg-red-100' : 'bg-yellow-100'}`}>
+                        <AlertCircle className={`h-4 w-4 ${rec.urgency === 'high' ? 'text-red-600' : 'text-yellow-600'}`} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{rec.product}</p>
+                        <p className="text-sm text-gray-600">{rec.reason}</p>
+                        <p className="text-sm font-medium text-emerald-600">{rec.savings}</p>
+                      </div>
+                      <Badge variant={rec.type === 'buy' ? 'default' : 'secondary'}>
+                        {rec.type === 'buy' ? 'Buy Now' : 'Wait'}
+                      </Badge>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="products" className="space-y-6">
+            {/* Search and Filter */}
+            <div className="flex space-x-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button variant="outline">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </div>
+
+            {/* Products List */}
+            <div className="grid gap-4">
+              {products.map((product) => (
+                <Card key={product.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">{product.name}</h3>
+                        <p className="text-gray-600">Best price from {product.bestSupplier}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-2xl font-bold text-gray-900">₹{product.currentPrice}</span>
+                          {product.trend === 'down' ? (
+                            <TrendingDown className="h-5 w-5 text-green-500" />
+                          ) : (
+                            <TrendingUp className="h-5 w-5 text-red-500" />
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-sm text-gray-500">was ₹{product.lastPrice}</span>
+                          <Badge variant={product.savings > 0 ? 'default' : 'destructive'} className="text-xs">
+                            {product.savings > 0 ? '+' : ''}₹{product.savings}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="suppliers" className="space-y-6">
+            <div className="grid gap-4">
+              {suppliers.map((supplier, index) => (
+                <Card key={index} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-semibold text-lg">{supplier.name}</h3>
+                        <p className="text-gray-600">{supplier.products} products tracked</p>
+                      </div>
+                      <div className="text-right space-y-2">
+                        <div>
+                          <span className="text-sm text-gray-500">Avg Price: </span>
+                          <span className="font-semibold">₹{supplier.avgPrice}</span>
+                        </div>
+                        <div>
+                          <span className="text-sm text-gray-500">Reliability: </span>
+                          <Badge variant={supplier.reliability > 95 ? 'default' : 'secondary'}>
+                            {supplier.reliability}%
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="recommendations">
+            <Card>
+              <CardHeader>
+                <CardTitle>Smart Purchasing Recommendations</CardTitle>
+                <CardDescription>AI-powered insights to maximize your savings</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {recommendations.map((rec, index) => (
+                    <div key={index} className="border-l-4 border-emerald-500 pl-4 py-3 bg-emerald-50 rounded-r-lg">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{rec.product}</h4>
+                          <p className="text-gray-600 mt-1">{rec.reason}</p>
+                          <p className="text-emerald-600 font-medium mt-2">{rec.savings}</p>
+                        </div>
+                        <Badge variant={rec.type === 'buy' ? 'default' : 'secondary'}>
+                          {rec.type === 'buy' ? 'Recommended' : 'Hold'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
