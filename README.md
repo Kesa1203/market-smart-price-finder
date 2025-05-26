@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Welcome to my Smart price finder project
 
 ## Project info
 
