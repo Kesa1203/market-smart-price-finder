@@ -15,47 +15,47 @@ const Index = () => {
 
   // Mock data for demonstration
   const priceData = [
-    { date: '1/1', supplier1: 45, supplier2: 48, supplier3: 42 },
-    { date: '1/2', supplier1: 47, supplier2: 46, supplier3: 44 },
-    { date: '1/3', supplier1: 44, supplier2: 49, supplier3: 43 },
-    { date: '1/4', supplier1: 46, supplier2: 47, supplier3: 41 },
-    { date: '1/5', supplier1: 43, supplier2: 45, supplier3: 40 },
+    { date: '1/1', supplier1: 2.45, supplier2: 2.48, supplier3: 2.42 },
+    { date: '1/2', supplier1: 2.47, supplier2: 2.46, supplier3: 2.44 },
+    { date: '1/3', supplier1: 2.44, supplier2: 2.49, supplier3: 2.43 },
+    { date: '1/4', supplier1: 2.46, supplier2: 2.47, supplier3: 2.41 },
+    { date: '1/5', supplier1: 2.43, supplier2: 2.45, supplier3: 2.40 },
   ];
 
   const products = [
     { 
       id: 1, 
       name: 'Rice (1kg)', 
-      currentPrice: 43, 
-      lastPrice: 46, 
+      currentPrice: 2.43, 
+      lastPrice: 2.46, 
       bestSupplier: 'Supplier C',
       trend: 'down',
-      savings: 3
+      savings: 0.03
     },
     { 
       id: 2, 
       name: 'Cooking Oil (1L)', 
-      currentPrice: 125, 
-      lastPrice: 120, 
+      currentPrice: 4.25, 
+      lastPrice: 4.20, 
       bestSupplier: 'Supplier A',
       trend: 'up',
-      savings: -5
+      savings: -0.05
     },
     { 
       id: 3, 
       name: 'Sugar (1kg)', 
-      currentPrice: 55, 
-      lastPrice: 58, 
+      currentPrice: 1.55, 
+      lastPrice: 1.58, 
       bestSupplier: 'Supplier B',
       trend: 'down',
-      savings: 3
+      savings: 0.03
     },
   ];
 
   const suppliers = [
-    { name: 'Supplier A', products: 45, avgPrice: 87, reliability: 95 },
-    { name: 'Supplier B', products: 38, avgPrice: 82, reliability: 92 },
-    { name: 'Supplier C', products: 52, avgPrice: 79, reliability: 98 },
+    { name: 'Supplier A', products: 45, avgPrice: 2.87, reliability: 95 },
+    { name: 'Supplier B', products: 38, avgPrice: 2.82, reliability: 92 },
+    { name: 'Supplier C', products: 52, avgPrice: 2.79, reliability: 98 },
   ];
 
   const recommendations = [
@@ -63,14 +63,14 @@ const Index = () => {
       type: 'buy',
       product: 'Rice (1kg)',
       reason: 'Price dropped 6.5% - best time to buy',
-      savings: '₹3 per unit',
+      savings: '$0.03 per unit',
       urgency: 'high'
     },
     {
       type: 'wait',
       product: 'Cooking Oil (1L)',
       reason: 'Price trending upward - wait for correction',
-      savings: 'Potential ₹8 savings',
+      savings: 'Potential $0.08 savings',
       urgency: 'medium'
     },
   ];
@@ -113,7 +113,7 @@ const Index = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-emerald-100">Total Savings</p>
-                  <p className="text-2xl font-bold">₹2,450</p>
+                  <p className="text-2xl font-bold">$24.50</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-emerald-200" />
               </div>
@@ -246,7 +246,7 @@ const Index = () => {
                       </div>
                       <div className="text-right">
                         <div className="flex items-center space-x-2">
-                          <span className="text-2xl font-bold text-gray-900">₹{product.currentPrice}</span>
+                          <span className="text-2xl font-bold text-gray-900">${product.currentPrice.toFixed(2)}</span>
                           {product.trend === 'down' ? (
                             <TrendingDown className="h-5 w-5 text-green-500" />
                           ) : (
@@ -254,9 +254,9 @@ const Index = () => {
                           )}
                         </div>
                         <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-sm text-gray-500">was ₹{product.lastPrice}</span>
+                          <span className="text-sm text-gray-500">was ${product.lastPrice.toFixed(2)}</span>
                           <Badge variant={product.savings > 0 ? 'default' : 'destructive'} className="text-xs">
-                            {product.savings > 0 ? '+' : ''}₹{product.savings}
+                            {product.savings > 0 ? '+' : ''}${product.savings.toFixed(2)}
                           </Badge>
                         </div>
                       </div>
@@ -280,7 +280,7 @@ const Index = () => {
                       <div className="text-right space-y-2">
                         <div>
                           <span className="text-sm text-gray-500">Avg Price: </span>
-                          <span className="font-semibold">₹{supplier.avgPrice}</span>
+                          <span className="font-semibold">${supplier.avgPrice.toFixed(2)}</span>
                         </div>
                         <div>
                           <span className="text-sm text-gray-500">Reliability: </span>
