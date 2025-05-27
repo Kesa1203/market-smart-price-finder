@@ -7,11 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { TrendingUp, TrendingDown, AlertCircle, Plus, Search, Filter, DollarSign, Users, Package, Target } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { AddProductDialog } from '@/components/AddProductDialog';
 
 const Index = () => {
-  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
 
   // Mock data for demonstration
   const priceData = [
@@ -22,7 +22,7 @@ const Index = () => {
     { date: '1/5', supplier1: 2.43, supplier2: 2.45, supplier3: 2.40 },
   ];
 
-  const products = [
+  const [products, setProducts] = useState([
     { 
       id: 1, 
       name: 'Rice (1kg)', 
@@ -50,7 +50,7 @@ const Index = () => {
       trend: 'down',
       savings: 0.03
     },
-  ];
+  ]);
 
   const suppliers = [
     { name: 'Supplier A', products: 45, avgPrice: 2.87, reliability: 95 },
@@ -76,10 +76,11 @@ const Index = () => {
   ];
 
   const handleAddProduct = () => {
-    toast({
-      title: "Add Product",
-      description: "Product tracking feature coming soon!",
-    });
+    setIsAddProductOpen(true);
+  };
+
+  const handleProductAdd = (newProduct: any) => {
+    setProducts(prev => [...prev, newProduct]);
   };
 
   return (
@@ -125,7 +126,7 @@ const Index = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-600">Products Tracked</p>
-                  <p className="text-2xl font-bold text-gray-900">127</p>
+                  <p className="text-2xl font-bold text-gray-900">{products.length}</p>
                 </div>
                 <Package className="h-8 w-8 text-gray-400" />
               </div>
@@ -324,6 +325,12 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <AddProductDialog 
+        open={isAddProductOpen} 
+        onOpenChange={setIsAddProductOpen}
+        onProductAdd={handleProductAdd}
+      />
     </div>
   );
 };
