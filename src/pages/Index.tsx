@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,10 +7,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { TrendingUp, TrendingDown, AlertCircle, Plus, Search, Filter, DollarSign, Users, Package, Target } from 'lucide-react';
 import { AddProductDialog } from '@/components/AddProductDialog';
+import { BulkImportDialog } from '@/components/BulkImportDialog';
+import { PriceAlertDialog } from '@/components/PriceAlertDialog';
+import { AdvancedFilters } from '@/components/AdvancedFilters';
+import { InteractiveChart } from '@/components/InteractiveChart';
+import { SupplierProfileDialog } from '@/components/SupplierProfileDialog';
+import { ProductCategoryFilter } from '@/components/ProductCategoryFilter';
+import { Bell, Upload, AlertTriangle } from 'lucide-react';
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
+  const [isPriceAlertOpen, setIsPriceAlertOpen] = useState(false);
+  const [isSupplierProfileOpen, setIsSupplierProfileOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [filters, setFilters] = useState({});
+  const [alerts, setAlerts] = useState([]);
 
   // Mock data for demonstration
   const priceData = [
@@ -30,7 +43,8 @@ const Index = () => {
       lastPrice: 2.46, 
       bestSupplier: 'Supplier C',
       trend: 'down',
-      savings: 0.03
+      savings: 0.03,
+      category: 'Food'
     },
     { 
       id: 2, 
@@ -39,7 +53,8 @@ const Index = () => {
       lastPrice: 4.20, 
       bestSupplier: 'Supplier A',
       trend: 'up',
-      savings: -0.05
+      savings: -0.05,
+      category: 'Food'
     },
     { 
       id: 3, 
@@ -48,7 +63,8 @@ const Index = () => {
       lastPrice: 1.58, 
       bestSupplier: 'Supplier B',
       trend: 'down',
-      savings: 0.03
+      savings: 0.03,
+      category: 'Food'
     },
   ]);
 
@@ -57,6 +73,9 @@ const Index = () => {
     { name: 'Supplier B', products: 38, avgPrice: 2.82, reliability: 92 },
     { name: 'Supplier C', products: 52, avgPrice: 2.79, reliability: 98 },
   ];
+
+  const categories = ['Food', 'Electronics', 'Household', 'Office'];
+  const supplierNames = suppliers.map(s => s.name);
 
   const recommendations = [
     {
@@ -80,8 +99,43 @@ const Index = () => {
   };
 
   const handleProductAdd = (newProduct: any) => {
-    setProducts(prev => [...prev, newProduct]);
+    setProducts(prev => [...prev, { ...newProduct, category: newProduct.category || 'General' }]);
   };
+
+  const handleBulkImport = (importedProducts: any[]) => {
+    setProducts(prev => [...prev, ...importedProducts]);
+  };
+
+  const handleAlertCreate = (alert: any) => {
+    setAlerts(prev => [...prev, alert]);
+  };
+
+  const handleSupplierClick = (supplier: any) => {
+    setSelectedSupplier(supplier);
+    setIsSupplierProfileOpen(true);
+  };
+
+  const filteredProducts = products.filter(product => {
+    if (searchTerm && !product.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+    if (selectedCategory && product.category !== selectedCategory) {
+      return false;
+    }
+    if (filters.minPrice && product.currentPrice < parseFloat(filters.minPrice)) {
+      return false;
+    }
+    if (filters.maxPrice && product.currentPrice > parseFloat(filters.maxPrice)) {
+      return false;
+    }
+    if (filters.supplier && product.bestSupplier !== filters.supplier) {
+      return false;
+    }
+    if (filters.trend && product.trend !== filters.trend) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-slate-100">
@@ -98,10 +152,25 @@ const Index = () => {
                 <p className="text-sm text-gray-500">Smart Retail Price Management</p>
               </div>
             </div>
-            <Button onClick={handleAddProduct} className="bg-emerald-600 hover:bg-emerald-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Product
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" onClick={() => setIsPriceAlertOpen(true)}>
+                <Bell className="h-4 w-4 mr-2" />
+                Alerts
+                {alerts.length > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                    {alerts.length}
+                  </span>
+                )}
+              </Button>
+              <Button variant="outline" onClick={() => setIsBulkImportOpen(true)}>
+                <Upload className="h-4 w-4 mr-2" />
+                Bulk Import
+              </Button>
+              <Button onClick={handleAddProduct} className="bg-emerald-600 hover:bg-emerald-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Product
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -169,27 +238,7 @@ const Index = () => {
 
           <TabsContent value="dashboard" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Price Trends Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Price Trends</CardTitle>
-                  <CardDescription>Last 5 days price comparison</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={priceData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="supplier1" stroke="#10b981" strokeWidth={2} name="Supplier A" />
-                      <Line type="monotone" dataKey="supplier2" stroke="#3b82f6" strokeWidth={2} name="Supplier B" />
-                      <Line type="monotone" dataKey="supplier3" stroke="#8b5cf6" strokeWidth={2} name="Supplier C" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
+              <InteractiveChart data={priceData} />
               {/* Quick Actions */}
               <Card>
                 <CardHeader>
@@ -218,31 +267,43 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="products" className="space-y-6">
-            {/* Search and Filter */}
-            <div className="flex space-x-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+            {/* Enhanced Search and Filter */}
+            <div className="space-y-4">
+              <div className="flex space-x-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </div>
-              <Button variant="outline">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
+              
+              <ProductCategoryFilter
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+              
+              <AdvancedFilters
+                onFiltersChange={setFilters}
+                suppliers={supplierNames}
+              />
             </div>
 
             {/* Products List */}
             <div className="grid gap-4">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <Card key={product.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{product.name}</h3>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="font-semibold text-lg">{product.name}</h3>
+                          <Badge variant="outline">{product.category}</Badge>
+                        </div>
                         <p className="text-gray-600">Best price from {product.bestSupplier}</p>
                       </div>
                       <div className="text-right">
@@ -271,7 +332,11 @@ const Index = () => {
           <TabsContent value="suppliers" className="space-y-6">
             <div className="grid gap-4">
               {suppliers.map((supplier, index) => (
-                <Card key={index} className="hover:shadow-md transition-shadow">
+                <Card 
+                  key={index} 
+                  className="hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => handleSupplierClick(supplier)}
+                >
                   <CardContent className="p-6">
                     <div className="flex justify-between items-center">
                       <div>
@@ -330,6 +395,25 @@ const Index = () => {
         open={isAddProductOpen} 
         onOpenChange={setIsAddProductOpen}
         onProductAdd={handleProductAdd}
+      />
+      
+      <BulkImportDialog
+        open={isBulkImportOpen}
+        onOpenChange={setIsBulkImportOpen}
+        onBulkImport={handleBulkImport}
+      />
+      
+      <PriceAlertDialog
+        open={isPriceAlertOpen}
+        onOpenChange={setIsPriceAlertOpen}
+        products={products}
+        onAlertCreate={handleAlertCreate}
+      />
+      
+      <SupplierProfileDialog
+        open={isSupplierProfileOpen}
+        onOpenChange={setIsSupplierProfileOpen}
+        supplier={selectedSupplier}
       />
     </div>
   );
